@@ -1,7 +1,10 @@
 <?php
 namespace App\Infrastructure\Persistence;
 use Abraham\TwitterOAuth\TwitterOAuth;
+use App\Domain\Tweet;
 use App\Domain\TweeterRepository;
+use App\Domain\TweeterUser;
+use App\Domain\TweetsCollection;
 
 /**
  * Created by PhpStorm.
@@ -26,10 +29,11 @@ class TweeterRestApiRepository implements TweeterRepository
         $result=$this->connection->get('statuses/user_timeline', array(
             'user_id' => $user,
             'exclude_replies' => 'true',
-            'include_rts' => 'false',
+            'include_rts' => 'true',
             'count' => $quantity
             )
         );
+        return $this->arrangeDomainEntities($user,$result);
     }
 
     private function createConnectionToTweeterApi()
@@ -52,5 +56,19 @@ class TweeterRestApiRepository implements TweeterRepository
         }
         return true;
 
+    }
+
+    private function arrangeDomainEntities($user,$result)
+    {
+
+        foreach($result as $tweet)
+        {
+            $tweetsResult[]=new Tweet(
+                preg_replace('/^RT /','',$tweet->text,1)
+            );
+        }
+        $tweetCollection=new TweetsCollection($tweetsResult);
+        $tweetUser=new TweeterUser($user,$tweetCollection);
+        return $tweetUser;
     }
 }

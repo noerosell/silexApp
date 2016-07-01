@@ -8,5 +8,5 @@ namespace App\Domain;
  */
 interface TweetsPresenter
 {
-    public function write();
+    public function write(TweeterUser $tweeterUser);
 }

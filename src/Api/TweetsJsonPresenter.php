@@ -9,12 +9,19 @@
 namespace App\Api;
 
 
+use App\Domain\TweeterUser;
 use App\Domain\TweetsPresenter;
 
 class TweetsJsonPresenter implements TweetsPresenter
 {
-    public function write()
+    public function write(TweeterUser $tweeterUser)
     {
-        // TODO: Implement write() method.
+
+        $parsedResult=[];
+        foreach($tweeterUser->tweetsCollection() as $tweet)
+        {
+            $parsedResult[]=$tweet->text();
+        }
+        return $parsedResult;
     }
 }

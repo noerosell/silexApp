@@ -27,7 +27,7 @@ class GetTweetsFromTweeterUserUseCase
 
     public function execute(GetTweetsFromTweeterUserRequest $request)
     {
-        $this->presenter->write(
+        return $this->presenter->write(
             $this->repository->findTweetsByUser($request->user(),$request->quantity())
         );
     }
