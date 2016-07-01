@@ -6,22 +6,26 @@ namespace App\Api {
     use Silex\Application;
     use Symfony\Component\HttpFoundation\JsonResponse;
     use Symfony\Component\HttpFoundation\Request;
-    use Symfony\Component\HttpFoundation\Response;
 
     class defaultController
     {
         public function getTweets(Request $request, Application $app)
         {
+            try {
+                /** @var  GetTweetsFromTweeterUserUseCase */
+                $useCase = $app['get.tweets.from.tweeter.user'];
 
-            /** @var  GetTweetsFromTweeterUserUseCase */
-            $useCase=$app['get.tweets.from.tweeter.user'];
-            $requestUseCase=new GetTweetsFromTweeterUserRequest(
-                $request->get('tweeterUser'),
-                $request->get('quantity')
-            );
-            $result=$useCase->execute($requestUseCase);
+                $requestUseCase = new GetTweetsFromTweeterUserRequest(
+                    $request->get('tweeterUser'),
+                    $request->get('quantity')
+                );
+                $result = $useCase->execute($requestUseCase);
 
-            return new JsonResponse($result,200);
+                return new JsonResponse($result, 200);
+            }catch(\Throwable $e )
+            {
+                return new JsonResponse($e->getMessage(),$e->getCode());
+            }
         }
 
     }

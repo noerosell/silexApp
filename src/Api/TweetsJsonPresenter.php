@@ -24,4 +24,9 @@ class TweetsJsonPresenter implements TweetsPresenter
         }
         return $parsedResult;
     }
+
+    public function writeAnError(string $message, int $code)
+    {
+        throw new \Exception($message, $code);
+    }
 }

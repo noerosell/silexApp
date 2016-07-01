@@ -25,15 +25,26 @@ class TweeterRestApiRepository implements TweeterRepository
 
     public function findTweetsByUser($user, $quantity)
     {
-        $this->createConnectionToTweeterApi();
-        $result=$this->connection->get('statuses/user_timeline', array(
-            'user_id' => $user,
-            'exclude_replies' => 'true',
-            'include_rts' => 'true',
-            'count' => $quantity
-            )
-        );
-        return $this->arrangeDomainEntities($user,$result);
+        $resultConnection=$this->createConnectionToTweeterApi();
+        if ($resultConnection===true) {
+
+            $result = $this->connection->get('statuses/user_timeline', array(
+                    'screen_name' => $user,
+                    'exclude_replies' => 'true',
+                    'include_rts' => 'true',
+                    'count' => $quantity
+                )
+            );
+            if ($this->connection->getLastHttpCode()!=200)
+            {
+                throw new \Exception($result->errors[0]->message,$this->connection->getLastHttpCode());
+            }
+            return $this->arrangeDomainEntities($user, $result);
+        }
+        else
+        {
+            throw new \Exception('Connection to Twiter Api can\'t be stablished',$resultConnection);
+        }
     }
 
     private function createConnectionToTweeterApi()
@@ -50,9 +61,10 @@ class TweeterRestApiRepository implements TweeterRepository
     private function verifyConnectionIsUpAndRunning()
     {
         $this->connection->get("account/verify_credentials");
-        if ($this->connection->getLastHttpCode()!=200)
+        $result=$this->connection->getLastHttpCode();
+        if ($result!==200)
         {
-            return false;
+            return $result;
         }
         return true;
 

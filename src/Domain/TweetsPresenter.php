@@ -9,4 +9,5 @@ namespace App\Domain;
 interface TweetsPresenter
 {
     public function write(TweeterUser $tweeterUser);
+    public function writeAnError(string $message, int $code);
 }

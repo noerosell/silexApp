@@ -26,7 +26,7 @@ class Tweet
         }
         else
         {
-            throw new \Exception('This can\'t be a valid twit bro !');
+            throw new \Exception('This can\'t be a valid twit bro !',503);
         }
     }
 
