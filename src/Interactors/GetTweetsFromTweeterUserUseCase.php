@@ -29,7 +29,7 @@ class GetTweetsFromTweeterUserUseCase
     {
         try {
             return $this->presenter->write(
-                $this->repository->findTweetsByUser($request->user(), $request->quantity())
+                $this->repository->findTweetsByUser($request->userId(), $request->quantity())
             );
         }
         catch(\Exception $e)

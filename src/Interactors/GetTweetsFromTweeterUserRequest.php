@@ -1,5 +1,8 @@
 <?php
 namespace App\Interactors;
+use App\Domain\TweeterUserId;
+
+
 /**
  * Created by PhpStorm.
  * User: noe.rosell
@@ -8,7 +11,7 @@ namespace App\Interactors;
  */
 class GetTweetsFromTweeterUserRequest
 {
-    private $user;
+    private $userId;
 
     private $quantity;
 
@@ -17,16 +20,16 @@ class GetTweetsFromTweeterUserRequest
      */
     public function __construct($user,$quantity)
     {
-        $this->user=$user;
+        $this->userId=new TweeterUserId($user);
         $this->quantity=$quantity;
     }
 
     /**
      * @return mixed
      */
-    public function user()
+    public function userId()
     {
-        return $this->user;
+        return $this->userId;
     }
 
     /**

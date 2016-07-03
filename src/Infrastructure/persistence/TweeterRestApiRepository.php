@@ -4,6 +4,7 @@ use Abraham\TwitterOAuth\TwitterOAuth;
 use App\Domain\Tweet;
 use App\Domain\TweeterRepository;
 use App\Domain\TweeterUser;
+use App\Domain\TweeterUserId;
 use App\Domain\TweetsCollection;
 
 /**
@@ -23,13 +24,13 @@ class TweeterRestApiRepository implements TweeterRepository
     /** @var  TwitterOAuth */
     private $connection;
 
-    public function findTweetsByUser($user, $quantity)
+    public function findTweetsByUser(TweeterUserId $userId, $quantity)
     {
         $resultConnection=$this->createConnectionToTweeterApi();
         if ($resultConnection===true) {
 
             $result = $this->connection->get('statuses/user_timeline', array(
-                    'screen_name' => $user,
+                    'screen_name' => $userId->get(),
                     'exclude_replies' => 'true',
                     'include_rts' => 'true',
                     'count' => $quantity
@@ -39,7 +40,7 @@ class TweeterRestApiRepository implements TweeterRepository
             {
                 throw new \Exception($result->errors[0]->message,$this->connection->getLastHttpCode());
             }
-            return $this->arrangeDomainEntities($user, $result);
+            return $this->arrangeDomainEntities($userId, $result);
         }
         else
         {
@@ -76,11 +77,11 @@ class TweeterRestApiRepository implements TweeterRepository
         foreach($result as $tweet)
         {
             $tweetsResult[]=new Tweet(
-                preg_replace('/^RT /','',$tweet->text,1)
+                $tweet->text
             );
         }
         $tweetCollection=new TweetsCollection($tweetsResult);
-        $tweetUser=new TweeterUser($user,$tweetCollection);
+        $tweetUser=new TweeterUser(new TweeterUserId($user),$tweetCollection);
         return $tweetUser;
     }
 }

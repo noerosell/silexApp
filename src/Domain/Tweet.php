@@ -20,7 +20,7 @@ class Tweet
 
     private function setText($text)
     {
-        if (mb_strlen($text)>0 && mb_strlen($text)<=140)
+        if (mb_strlen($text)>0)
         {
             $this->text=$text;
         }

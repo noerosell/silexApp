@@ -9,16 +9,18 @@
 namespace App\Domain;
 
 
+use App\Domain\TweeterUserId;
+
 class TweeterUser
 {
-    /** @var  string */
+    /** @var  TweeterUserId */
     private $userId;
 
     /** @var  TweetsCollection */
     private $tweets;
 
 
-    public function __construct(string $userId,TweetsCollection $tweets)
+    public function __construct(TweeterUserId $userId, TweetsCollection $tweets)
     {
         $this->setUserId($userId);
         $this->tweets=$tweets;
@@ -31,7 +33,7 @@ class TweeterUser
 
     private function setUserId($userId)
     {
-        if (preg_match('/^@[a-zA-Z0-9_]+/',$userId)===1)
+        if (preg_match('/^@[a-zA-Z0-9_]+/',$userId->get())===1)
         {
             $this->userId=$userId;
         }

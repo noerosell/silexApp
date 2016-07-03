@@ -8,5 +8,5 @@ namespace App\Domain;
  */
 interface TweeterRepository
 {
-    public function findTweetsByUser($user,$quantity);
+    public function findTweetsByUser(TweeterUserId $userId, $quantity);
 }
