@@ -38,6 +38,6 @@ class TweeterUser
             $this->userId=$userId;
         }
         else
-            throw new Exception('This can\'t be a twiter user_name bro !',400);
+            throw new \Exception('This can\'t be a twiter user_name bro !',400);
     }
 }
