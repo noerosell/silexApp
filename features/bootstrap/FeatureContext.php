@@ -1,6 +1,9 @@
 <?php
 
+use Abraham\TwitterOAuth\TwitterOAuth;
 use App\Api\TweetsJsonPresenter;
+use App\Domain\TweeterUserId;
+use App\Infrastructure\Persistence\TweeterRestApiRepository;
 use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Behat\Context\Context;
 use Behat\Behat\Context\SnippetAcceptingContext;
@@ -16,6 +19,8 @@ class FeatureContext implements Context, SnippetAcceptingContext
     private $presenter;
     private $repositoryResponse;
     private $resultPresenter;
+    private $twitterConnection;
+    private $tweeterRepository;
     /**
      * Initializes context.
      *
@@ -29,6 +34,15 @@ class FeatureContext implements Context, SnippetAcceptingContext
         $this->resultPresenter=unserialize(base64_decode(
             file_get_contents(__DIR__.'/../resources/formated.result.presenter')
         ));
+        $this->twitterConnection= new TwitterOAuth(
+        TweeterRestApiRepository::$_TWEETER_CONSUMER_KEY,
+        TweeterRestApiRepository::$_TWEETER_CONSUME_SECRET,
+        TweeterRestApiRepository::$_TWEETER_ACCESS_TOKEN,
+        TweeterRestApiRepository::$_TWEETER_ACCESS_TOKEN_SECRET
+        );
+
+        $this->tweeterRepository=new TweeterRestApiRepository($this->twitterConnection);
+
     }
 
     /**
@@ -51,5 +65,18 @@ class FeatureContext implements Context, SnippetAcceptingContext
     {
         $result=$this->presenter->write($this->repositoryResponse);
         PHPUnit_Framework_Assert::assertSame($result,$this->resultPresenter);
+    }
+
+    /**
+     * @Then : I should receive :arg1 twits in format which we can parse.
+     */
+    public function iShouldReceiveTwitsInFormatWhichWeCanParse($arg1)
+    {
+        $this->repositoryResponse=
+            unserialize(base64_decode(file_get_contents(
+                __DIR__.'/../resources/repository.response.txt'
+            )));
+        $result=$this->tweeterRepository->findTweetsByUser(new TweeterUserId('@mariotux'),10);
+        PHPUnit_Framework_Assert::assertEquals($result,$this->repositoryResponse);
     }
 }
