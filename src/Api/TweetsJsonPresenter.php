@@ -27,6 +27,6 @@ class TweetsJsonPresenter implements TweetsPresenter
 
     public function writeAnError(string $message, int $code)
     {
-        throw new \Exception($message, $code);
+        throw new ApiControlledException($message, $code);
     }
 }

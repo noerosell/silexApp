@@ -22,9 +22,14 @@ namespace App\Api {
                 $result = $useCase->execute($requestUseCase);
 
                 return new JsonResponse($result, 200);
-            }catch(\Throwable $e )
+            }
+            catch (ApiControlledExceptionException $e)
             {
                 return new JsonResponse($e->getMessage(),$e->getCode());
+            }
+            catch(\Throwable $e )
+            {
+                return new JsonResponse($e->getMessage(),503);
             }
         }
 
