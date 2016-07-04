@@ -21,6 +21,7 @@ class FeatureContext implements Context, SnippetAcceptingContext
     private $resultPresenter;
     private $twitterConnection;
     private $tweeterRepository;
+    private $cacheClient;
     /**
      * Initializes context.
      *
@@ -40,7 +41,6 @@ class FeatureContext implements Context, SnippetAcceptingContext
         TweeterRestApiRepository::$_TWEETER_ACCESS_TOKEN,
         TweeterRestApiRepository::$_TWEETER_ACCESS_TOKEN_SECRET
         );
-
         $this->tweeterRepository=new TweeterRestApiRepository($this->twitterConnection);
 
     }
