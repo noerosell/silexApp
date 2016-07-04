@@ -1,11 +1,13 @@
 <?php
 namespace App\Infrastructure\Persistence;
+
 use Abraham\TwitterOAuth\TwitterOAuth;
 use App\Domain\Tweet;
 use App\Domain\TweeterRepository;
 use App\Domain\TweeterUser;
 use App\Domain\TweeterUserId;
 use App\Domain\TweetsCollection;
+use App\Infrastructure\persistence\CacheClient;
 
 /**
  * Created by PhpStorm.
@@ -24,33 +26,44 @@ class TweeterRestApiRepository implements TweeterRepository
     /** @var  TwitterOAuth */
     private $connection;
 
-    public function __construct(TwitterOAuth $connection)
+    /** @var  CacheClient */
+    private $cacheClient;
+
+    public function __construct(TwitterOAuth $connection, CacheClient $cacheClient)
     {
         $this->connection=$connection;
+        $this->cacheClient=$cacheClient;
     }
 
     public function findTweetsByUser(TweeterUserId $userId, $quantity)
     {
-        $resultConnection=$this->verifyConnectionIsUpAndRunning();
-        if ($resultConnection===true) {
 
-            $result = $this->connection->get('statuses/user_timeline', array(
-                    'screen_name' => $userId->get(),
-                    'exclude_replies' => 'true',
-                    'include_rts' => 'true',
-                    'count' => $quantity
-                )
-            );
-            if ($this->connection->getLastHttpCode()!=200)
-            {
-                throw new \Exception($result->errors[0]->message,$this->connection->getLastHttpCode());
+        if ($result=$this->tryToSeverResultFromCache($userId->get(),$quantity)) {
+            return $result;
+        }
+
+            $resultConnection = $this->verifyConnectionIsUpAndRunning();
+            if ($resultConnection === true) {
+
+                $result = $this->connection->get('statuses/user_timeline', array(
+                        'screen_name' => $userId->get(),
+                        'exclude_replies' => 'true',
+                        'include_rts' => 'true',
+                        'count' => $quantity
+                    )
+                );
+                if ($this->connection->getLastHttpCode() != 200) {
+                    throw new \Exception($result->errors[0]->message, $this->connection->getLastHttpCode());
+                }
+
+                $result = $this->arrangeDomainEntities($userId, $result);
+
+                $this->cacheClient->set('#' . $userId->get() . '_' . $quantity . '#', base64_encode(serialize($result)),60);
+
+                return $result;
+            } else {
+                throw new \Exception('Connection to Twiter Api can\'t be stablished', $resultConnection);
             }
-            return $this->arrangeDomainEntities($userId, $result);
-        }
-        else
-        {
-            throw new \Exception('Connection to Twiter Api can\'t be stablished',$resultConnection);
-        }
     }
 
     private function verifyConnectionIsUpAndRunning()
@@ -77,5 +90,16 @@ class TweeterRestApiRepository implements TweeterRepository
         $tweetCollection=new TweetsCollection($tweetsResult);
         $tweetUser=new TweeterUser(new TweeterUserId($user),$tweetCollection);
         return $tweetUser;
+    }
+
+    private function tryToSeverResultFromCache($userId,$quantity)
+    {
+
+        if ($this->cacheClient->exists('#'.$userId.'_'.$quantity.'#'))
+        {
+            return unserialize(base64_decode($this->cacheClient->get('#'.$userId.'_'.$quantity.'#')));
+        }
+        else
+            return false;
     }
 }

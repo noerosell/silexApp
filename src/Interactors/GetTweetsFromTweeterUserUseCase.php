@@ -34,6 +34,7 @@ class GetTweetsFromTweeterUserUseCase
         }
         catch(\Exception $e)
         {
+            print_r($e);die;
             return $this->presenter->writeAnError($e->getMessage(),$e->getCode());
         }
     }
