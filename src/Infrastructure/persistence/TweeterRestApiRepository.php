@@ -16,17 +16,22 @@ use App\Domain\TweetsCollection;
 class TweeterRestApiRepository implements TweeterRepository
 {
 
-    const _TWEETER_CONSUMER_KEY='UAD7v17XGHGbCqcCfbpT48Ryh';
-    const _TWEETER_CONSUME_SECRET='nteO4ec835c0Nma689tRJWtBZXOJYaij63oPKNHf73Chqbu0Kq';
-    const _TWEETER_ACCESS_TOKEN='1320990102-Lm9k5m3TfQmiX3xgaJLiPEcn81POVlZ3DWmNX2R';
-    const _TWEETER_ACCESS_TOKEN_SECRET='0L148FqLMeKYTQbnoDXGRCjS7JLegqSOYmkS6XV9naAmL';
+    public static $_TWEETER_CONSUMER_KEY='UAD7v17XGHGbCqcCfbpT48Ryh';
+    public static $_TWEETER_CONSUME_SECRET='nteO4ec835c0Nma689tRJWtBZXOJYaij63oPKNHf73Chqbu0Kq';
+    public static $_TWEETER_ACCESS_TOKEN='1320990102-Lm9k5m3TfQmiX3xgaJLiPEcn81POVlZ3DWmNX2R';
+    public static $_TWEETER_ACCESS_TOKEN_SECRET='0L148FqLMeKYTQbnoDXGRCjS7JLegqSOYmkS6XV9naAmL';
 
     /** @var  TwitterOAuth */
     private $connection;
 
+    public function __construct(TwitterOAuth $connection)
+    {
+        $this->connection=$connection;
+    }
+
     public function findTweetsByUser(TweeterUserId $userId, $quantity)
     {
-        $resultConnection=$this->createConnectionToTweeterApi();
+        $resultConnection=$this->verifyConnectionIsUpAndRunning();
         if ($resultConnection===true) {
 
             $result = $this->connection->get('statuses/user_timeline', array(
@@ -46,17 +51,6 @@ class TweeterRestApiRepository implements TweeterRepository
         {
             throw new \Exception('Connection to Twiter Api can\'t be stablished',$resultConnection);
         }
-    }
-
-    private function createConnectionToTweeterApi()
-    {
-        $this->connection=new TwitterOAuth(
-            self::_TWEETER_CONSUMER_KEY,
-            self::_TWEETER_CONSUME_SECRET,
-            self::_TWEETER_ACCESS_TOKEN,
-            self::_TWEETER_ACCESS_TOKEN_SECRET
-        );
-       return  $this->verifyConnectionIsUpAndRunning();
     }
 
     private function verifyConnectionIsUpAndRunning()
