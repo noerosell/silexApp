@@ -24,7 +24,7 @@ namespace App\Api {
                 return new JsonResponse($result, 200);
             }catch(\Throwable $e )
             {
-                return new JsonResponse($e->getMessage(),$e->getCode());
+                return new JsonResponse($e->getMessage(),503);
             }
         }
 
