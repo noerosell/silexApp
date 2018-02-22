@@ -9,7 +9,7 @@
   - In Web directory run command
   `php -S localhost:80` (with sudo if you have not necessary perms)
   - point your browser to 
-    `localhost/get/10/tweets/from/@peitocavernoso`
+    `localhost/get/10/tweets/from/@any_user_you_want`
 
 ###### Run Unit tests
   - In root directory execute the command
